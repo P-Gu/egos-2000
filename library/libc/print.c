@@ -20,6 +20,7 @@ int _write(int file, char *ptr, int len) {
     return earth->tty_write(ptr, len);
 }
 
+/* not implemented */
 int _close(int file) { return -1; }
 int _fstat(int file, void *stat) { return -1; }
 int _lseek(int file, int ptr, int dir) { return -1; }

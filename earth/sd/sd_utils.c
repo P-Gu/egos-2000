@@ -10,10 +10,12 @@
 #include "sd.h"
 
 char send_data_byte(char byte) {
+    /* wait until BASE + TXDATA is 0 */
     while (REGW(SPI1_BASE, SPI1_TXDATA) & (1 << 31));
     REGB(SPI1_BASE, SPI1_TXDATA) = byte;
 
     long rxdata;
+    /* wait until BASE + RXDATA is 0 */
     while ((rxdata = REGW(SPI1_BASE, SPI1_RXDATA)) & (1 << 31));
     return (char)(rxdata & 0xFF);
 }
@@ -30,7 +32,9 @@ char sd_exec_cmd(char* cmd) {
 }
 
 char sd_exec_acmd(char* cmd) {
+            /* 55 + 64 = 0x77 */
     char cmd55[] = {0x77, 0x00, 0x00, 0x00, 0x00, 0xFF};
+    /* wait till not receiving data */
     while (recv_data_byte() != 0xFF);
     sd_exec_cmd(cmd55);
 

@@ -29,6 +29,7 @@ struct frame_mapping {
 
 int mmu_alloc(int* frame_id, void** cached_addr) {
     for (int i = 0; i < NFRAMES; i++)
+        /* until find an unused frame */
         if (!table[i].use) {
             *frame_id = i;
             *cached_addr = paging_read(i, 1);

@@ -40,7 +40,7 @@ int tty_read(char* buf, int len) {
             return c == 0x03? 0 : i;
         case 0x7f:  /* Backspace */
             c = 0;
-            if (i) printf("\b \b");
+            if (i) printf("\b \b"); /* if not the first char, hide the previous char */
             i = i ? i - 2 : i - 1;
         }
 
@@ -59,6 +59,7 @@ int tty_read(char* buf, int len) {
                    va_end(args); \
                    printf(y); \
 
+/* equals tty_printf(const char *format, char **args) */
 int tty_printf(const char *format, ...)
 {
     LOG("", "")

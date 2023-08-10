@@ -23,6 +23,7 @@ int disk_read(int block_no, int nblocks, char* dst) {
     if (type == SD_CARD) {
         sdread(block_no, nblocks, dst);
     } else {
+        /* ROM starts at 0x20800000 */
         char* src = (char*)0x20800000 + block_no * BLOCK_SIZE;
         memcpy(dst, src, nblocks * BLOCK_SIZE);
     }

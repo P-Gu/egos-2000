@@ -50,6 +50,7 @@ int paging_write(int frame_id, int page_no) {
         }
 
     int free_idx = cache_eviction();
+    /* the current page is put in cache while another is evicted from cache and written to disk */
     cache_slots[free_idx] = frame_id;
     memcpy(pages_start + PAGE_SIZE * free_idx, src, PAGE_SIZE);
 }
@@ -60,8 +61,10 @@ char* paging_read(int frame_id, int alloc_only) {
     int free_idx = -1;
     for (int i = 0; i < ARTY_CACHED_NFRAMES; i++) {
         if (cache_slots[i] == -1 && free_idx == -1) free_idx = i;
+        /* the page is present in cache, return immediately */
         if (cache_slots[i] == frame_id) return pages_start + PAGE_SIZE * i;
     }
+    /* If not present in cache, read from disk and place it in cache. If cache is full, evict a page */
 
     if (free_idx == -1) free_idx = cache_eviction();
     cache_slots[free_idx] = frame_id;

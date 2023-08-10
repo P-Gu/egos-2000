@@ -22,6 +22,7 @@ int excp_register(void (*_handler)(int)) { excp_handler = _handler; }
 void trap_entry()  __attribute__((interrupt ("machine"), aligned(128)));
 void trap_entry() {
     int mcause;
+    /* machine trap cause register */
     asm("csrr %0, mcause" : "=r"(mcause));
 
     int id = mcause & 0x3FF;
@@ -33,8 +34,10 @@ void trap_entry() {
 
 int intr_enable() {
     int mstatus_val, mie_val;
+    /* machine status register */
     asm("csrr %0, mstatus" : "=r"(mstatus_val));
     asm("csrw mstatus, %0" ::"r"(mstatus_val | 0x8));
+    /* machine interrupt enable register */
     asm("csrr %0, mie" : "=r"(mie_val));
     /* For now, egos-2000 only uses timer and software interrupts */
     asm("csrw mie, %0" ::"r"(mie_val | 0x88));
