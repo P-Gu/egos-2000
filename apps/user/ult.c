@@ -116,7 +116,31 @@ void ctx_entry(void){
     asm("lw %0, 16(sp)" : "=r"(f));
 
     asm("mv a0, %0" :: "r"(arg));
-    asm("jalr t1, %0, 0" :: "r"(f));
+    asm("jalr ra, %0, 0" :: "r"(f));
+
+    INFO("jalr complete");
+
+    if (isEmpty(q)) {
+        INFO("empty queue, exit now\n");
+        return;
+    }
+    struct thread *next_thread = NULL;
+    while (next_thread==NULL && (!isEmpty(q))) {
+        next_thread = dequeue(q);
+        INFO("exit dequeue %d", next_thread->id);
+    }
+    if (next_thread == NULL) {
+        INFO("no valid thread, yield ignored\n");
+        return;
+    }
+    current_thread->valid = 0; 
+    if (current_thread->alloc_addr != -1) {
+        free(current_thread->alloc_addr);
+    }
+    free(current_thread);
+    current_thread = next_thread;
+    ctx_switch(&dummy, next_thread->sp);
+
     INFO("ctx entry done\n");
 }
 
@@ -134,7 +158,7 @@ void thread_create(void (*f)(void *), void *arg, unsigned int stack_size){
     t->id = index++;
     t->valid = 1;
     ctx_start(&main_thread->sp, t->sp);
-
+    INFO("create thread done\n"); 
 }      
 
 void thread_yield(){
@@ -249,7 +273,7 @@ void test_code(void *arg) {
         thread_yield(); // switch the context back to main thread
     }
     printf("%s done\n", arg);
-    thread_exit();
+    //thread_exit();
 }
 
 int main() {
