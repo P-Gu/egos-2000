@@ -171,7 +171,7 @@ void thread_yield(){
     struct thread *next_thread = NULL;
     while (next_thread==NULL && (!isEmpty(q))) {
         next_thread = dequeue(q);
-        INFO("yield dequeue %d", next_thread->id);
+        //INFO("yield dequeue %d", next_thread->id);
     }
     if (next_thread == NULL) {
         INFO("no valid thread, yield ignored\n");
@@ -180,7 +180,7 @@ void thread_yield(){
     enqueue(q, prev_thread);
     current_thread = next_thread;
     ctx_switch(&prev_thread->sp, next_thread->sp);
-    INFO("yield thread done\n");
+    //INFO("yield thread done\n");
 }
 
 void thread_exit(){
@@ -215,32 +215,32 @@ void thread_exit(){
 struct sema {
     /* Student's code goes here. */
     int count;
-    struct queue *q; // queue of threads blocked on this semaphore
+    //struct queue *q; // queue of threads blocked on this semaphore
 };
 
 void sema_init(struct sema *sema, unsigned int count){
     /* Student's code goes here. */
     sema->count = count;
-    sema->q = createQueue();
+    //sema->q = createQueue();
 }
 
 void sema_inc(struct sema *sema){
     /* Student's code goes here. */
-    if (isEmpty(sema->q)) {
+    //if (isEmpty(sema->q)) {
         sema->count++;
-    } else {
-        dequeue(sema->q);
-    }
+    //} else {
+    //    dequeue(sema->q);
+    //}
 }
 
 void sema_dec(struct sema *sema){
     /* Student's code goes here. */
-    if (sema->count == 0) {
-        enqueue(sema->q, current_thread);
-        //thread_yield();
-        struct thread *prev_thread = current_thread;
-        current_thread = main_thread;
-        ctx_switch(&prev_thread->sp, main_thread->sp);
+    while (sema->count == 0) {
+        //enqueue(sema->q, current_thread);
+        thread_yield();
+        //struct thread *prev_thread = current_thread;
+        //current_thread = main_thread;
+        //ctx_switch(&prev_thread->sp, main_thread->sp);
     } 
     sema->count--;
 }
@@ -262,7 +262,7 @@ static void producer(void *arg){
         // first make sure there's an empty slot.
         // then add an entry to the queue
         // lastly, signal consumers
-        printf("%s loop\n", (char *)arg);
+        //printf("%s loop\n", (char *)arg);
         sema_dec(&s_empty);
         slots[in++] = arg;
         if (in == NSLOTS) in = 0;
@@ -275,7 +275,7 @@ static void consumer(void *arg){
         // first make sure there's something in the buffer
         // then grab an entry to the queue
         // lastly, signal producers
-        printf("%s loop %d\n", (char *)arg, i);
+        //printf("%s loop %d\n", (char *)arg, i);
         sema_dec(&s_full);
         void *x = slots[out++];
         if (out == NSLOTS) out = 0;
