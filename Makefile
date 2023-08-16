@@ -39,6 +39,16 @@ qemu:
 	$(OBJCOPY) --update-section .image=$(TOOLS)/disk.img $(QEMU)/qemu.elf
 	$(RISCV_QEMU) -readconfig $(QEMU)/sifive-e31.cfg -kernel $(QEMU)/qemu.elf -nographic
 
+qemu-gdb:
+	@echo "$(YELLOW)-------- Simulate on QEMU-RISCV-GDB --------$(END)"
+	cp $(RELEASE)/earth.elf $(QEMU)/qemu.elf
+	$(OBJCOPY) --update-section .image=$(TOOLS)/disk.img $(QEMU)/qemu.elf
+	$(RISCV_QEMU) -S -gdb tcp::1234 -readconfig $(QEMU)/sifive-e31.cfg -kernel $(QEMU)/qemu.elf -nographic
+
+gdb:
+	@echo "$(YELLOW)-------- GDB --------$(END)"
+	gdb-multiarch -x .gdbinit
+
 clean:
 	rm -rf build
 	rm -rf $(TOOLS)/qemu/qemu.elf
