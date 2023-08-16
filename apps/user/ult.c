@@ -146,7 +146,7 @@ void ctx_entry(void){
 
 void thread_create(void (*f)(void *), void *arg, unsigned int stack_size){
     /* Student's code goes here. */
-    INFO("create thread start\n"); 
+    INFO("create thread %s start\n", (char *) arg); 
     int *new_sp = malloc(stack_size+4);
     *(new_sp + stack_size - 20) = (void *)f;
     *(new_sp + stack_size - 24) = (void *)arg;
@@ -158,7 +158,7 @@ void thread_create(void (*f)(void *), void *arg, unsigned int stack_size){
     t->id = index++;
     t->valid = 1;
     ctx_start(&main_thread->sp, t->sp);
-    INFO("create thread done\n"); 
+    INFO("create thread %s done\n", (char *) arg); 
 }      
 
 void thread_yield(){
@@ -214,18 +214,35 @@ void thread_exit(){
 
 struct sema {
     /* Student's code goes here. */
+    int count;
+    struct queue *q; // queue of threads blocked on this semaphore
 };
 
 void sema_init(struct sema *sema, unsigned int count){
     /* Student's code goes here. */
+    sema->count = count;
+    sema->q = createQueue();
 }
 
 void sema_inc(struct sema *sema){
     /* Student's code goes here. */
+    if (isEmpty(sema->q)) {
+        sema->count++;
+    } else {
+        dequeue(sema->q);
+    }
 }
 
 void sema_dec(struct sema *sema){
     /* Student's code goes here. */
+    if (sema->count == 0) {
+        enqueue(sema->q, current_thread);
+        //thread_yield();
+        struct thread *prev_thread = current_thread;
+        current_thread = main_thread;
+        ctx_switch(&prev_thread->sp, main_thread->sp);
+    } 
+    sema->count--;
 }
 
 int sema_release(struct sema *sema){
@@ -245,7 +262,7 @@ static void producer(void *arg){
         // first make sure there's an empty slot.
         // then add an entry to the queue
         // lastly, signal consumers
-
+        printf("%s loop\n", (char *)arg);
         sema_dec(&s_empty);
         slots[in++] = arg;
         if (in == NSLOTS) in = 0;
@@ -258,7 +275,7 @@ static void consumer(void *arg){
         // first make sure there's something in the buffer
         // then grab an entry to the queue
         // lastly, signal producers
-
+        printf("%s loop %d\n", (char *)arg, i);
         sema_dec(&s_full);
         void *x = slots[out++];
         if (out == NSLOTS) out = 0;
@@ -278,13 +295,12 @@ void test_code(void *arg) {
 
 int main() {
     INFO("User-level threading is not implemented.");
-    thread_init();
+    /*thread_init();
     thread_create(test_code, "thread 1", 16 * 1024);
     thread_create(test_code, "thread 2", 16 * 1024);
     test_code("main thread");
-    thread_exit();
+    thread_exit();*/
 
-    /*
     thread_init();
     sema_init(&s_full, 0);
     sema_init(&s_empty, NSLOTS);
@@ -297,7 +313,6 @@ int main() {
     thread_create(producer, "producer 3", 16 * 1024);
     producer("producer 1");
     thread_exit();
-    */
     INFO("main function returns 0");
     return 0;
 }
