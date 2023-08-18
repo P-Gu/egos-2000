@@ -295,12 +295,15 @@ void test_code(void *arg) {
 
 int main() {
     INFO("User-level threading is not implemented.");
+
+    // Threading test
     /*thread_init();
     thread_create(test_code, "thread 1", 16 * 1024);
     thread_create(test_code, "thread 2", 16 * 1024);
     test_code("main thread");
     thread_exit();*/
 
+    // Basic consumer producer test
     thread_init();
     sema_init(&s_full, 0);
     sema_init(&s_empty, NSLOTS);
@@ -313,6 +316,9 @@ int main() {
     thread_create(producer, "producer 3", 16 * 1024);
     producer("producer 1");
     thread_exit();
+
+
+
     INFO("main function returns 0");
     return 0;
 }

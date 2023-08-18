@@ -38,6 +38,7 @@ struct grass {
 
     /* Process control interface */
     int  (*proc_alloc)();
+    void  (*ps)();
     void (*proc_free)(int pid);
     void (*proc_set_ready)(int pid);
 

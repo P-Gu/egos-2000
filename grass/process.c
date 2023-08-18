@@ -14,7 +14,7 @@
 
 void intr_entry(int id);
 
-void excp_entry(int id) {
+void excp_entry(int id) { // HW 3
     /* Student's code goes here (handle memory exception). */
 
     /* If id is for system call, handle the system call and return */
@@ -26,7 +26,7 @@ void excp_entry(int id) {
     FATAL("excp_entry: kernel got exception %d", id);
 }
 
-void proc_init() {
+void proc_init() { // HW 3
     earth->intr_register(intr_entry);
     earth->excp_register(excp_entry);
 
@@ -61,6 +61,37 @@ int proc_alloc() {
         }
 
     FATAL("proc_alloc: reach the limit of %d processes", MAX_NPROCESS);
+}
+
+void ps() {
+    for (int i = 0; i < MAX_NPROCESS; i++)
+        if (proc_set[i].pid > 0) {
+            printf("%d        ", proc_set[i].pid);
+            int status = proc_set[i].status;
+            switch(status) {
+                case PROC_LOADING:
+                    printf("PROC_LOADING");
+                    break;
+                case PROC_READY:
+                    printf("PROC_READY");
+                    break;
+                case PROC_RUNNABLE:
+                    printf("PROC_RUNNABLE");
+                    break;
+                case PROC_RUNNING:
+                    printf("PROC_RUNNING");
+                    break;
+                case PROC_UNUSED:
+                    printf("PROC_UNUSED");
+                    break;
+                case PROC_WAIT_TO_RECV:
+                    printf("PROC_WAIT_TO_RECV");
+                    break;
+                case PROC_WAIT_TO_SEND:
+                    printf("PROC_WAIT_TO_SEND");
+            }
+            printf("\n");
+        }
 }
 
 void proc_free(int pid) {

@@ -32,6 +32,7 @@ void timer_reset();
 
 void proc_init();
 int  proc_alloc();
+void ps();
 void proc_free(int);
 void proc_set_ready (int);
 void proc_set_running (int);

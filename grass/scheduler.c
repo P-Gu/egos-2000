@@ -48,7 +48,7 @@ void intr_entry(int id) {
     ctx_start(&proc_set[proc_curr_idx].sp, (void*)GRASS_STACK_TOP);
 }
 
-void ctx_entry() {
+void ctx_entry() { // HW 3?
     /* Now on the kernel stack */
     int mepc, tmp;
     asm("csrr %0, mepc" : "=r"(mepc));
